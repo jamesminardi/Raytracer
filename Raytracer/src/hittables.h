@@ -6,26 +6,24 @@
 
 #include "hittable.h"
 
-#include "RTmath/numeric.h"
 #include <vector>
-#include "RTmath/vec3.h"
 #include "ray.h"
+#include "RTmath/numeric.h"
+#include "RTmath/vec3.h"
 
 
 using std::shared_ptr;
 using std::make_shared;
 
-class hittables : public hittable
-{
+class Hittables : public Hittable {
 public:
-	hittables() = default;
-	hittables(shared_ptr<hittable> object) { add(object); }
+	Hittables() = default;
+	explicit Hittables(shared_ptr<Hittable> object) { add(object); }
 
 	void clear() { objects.clear(); }
-	void add(shared_ptr<hittable> object) { objects.push_back(object); }
+	void add(shared_ptr<Hittable> object) { objects.push_back(object); }
 
-	virtual bool hit(const ray& r, float t_min, float t_max, Hit_Record& record) const override;
+	bool hit(const Ray& r, float t_min, float t_max, Hit_Record& record) const override;
 
-	std::vector<shared_ptr<hittable>> objects;
-	
+	std::vector<shared_ptr<Hittable>> objects;
 };

@@ -4,20 +4,20 @@
 
 #pragma once
 #include "hittable.h"
+#include "ray.h"
 #include "RTmath/numeric.h"
 #include "RTmath/vec3.h"
-#include "ray.h"
 
-class sphere : public hittable
-{
+class Sphere : public Hittable {
 public:
-	sphere() : m_center({0,0,0}), m_radius(0) {}
-	sphere (const point3 center, const float radius, shared_ptr<material> mat)
-		: m_center(center), m_radius(radius), mat_ptr(mat)  {}
+	Sphere() : m_center({0, 0, 0}), m_radius(0) {}
 
-	virtual bool hit(const ray& r, float t_min, float t_max, Hit_Record& record) const override;
-	
-	point3 m_center;
+	Sphere(const Point3 center, const float radius, shared_ptr<Material> mat)
+		: m_center(center), m_radius(radius), mat_ptr(mat) {}
+
+	bool hit(const Ray& r, float t_min, float t_max, Hit_Record& record) const override;
+
+	Point3 m_center;
 	float m_radius;
-	shared_ptr<material> mat_ptr;
+	shared_ptr<Material> mat_ptr;
 };
