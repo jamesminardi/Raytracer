@@ -8,23 +8,27 @@
 #include <iostream>
 
 #include "numeric.h"
-#include "bitmap/bitmap_image.hpp"
+#include "bitmap_image.hpp"
 
 class Vec3 {
 public:
-	Vec3(): e{0.0f, 0.0f, 0.0f} {}
-	Vec3(const float e0, const float e1, const float e2) : e{e0, e1, e2} {}
 
-	float x() const { return e[0]; }
-	float y() const { return e[1]; }
-	float z() const { return e[2]; }
-	uint8_t r() const { return float_to_byte(clamp(x(), 0.0f, 1.0f)); }
-	uint8_t g() const { return float_to_byte(clamp(y(), 0.0f, 1.0f)); }
-	uint8_t b() const { return float_to_byte(clamp(z(), 0.0f, 1.0f)); }
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "cppcoreguidelines-pro-type-member-init"
+	Vec3(): x(0.0f), y(0.0f), z(0.0f) {}
+	Vec3(const float e0, const float e1, const float e2) : x(e0), y(e1), z(e2) {}
+#pragma clang diagnostic pop
+
+//	float x() const { return x; }
+//	float y() const { return e[1]; }
+//	float z() const { return e[2]; }
+//	uint8_t r() const { return float_to_byte(clamp(x(), 0.0f, 1.0f)); }
+//	uint8_t g() const { return float_to_byte(clamp(y(), 0.0f, 1.0f)); }
+//	uint8_t b() const { return float_to_byte(clamp(z(), 0.0f, 1.0f)); }
 
 	Vec3 operator-() const
 	{
-		return {-e[0], -e[1], -e[2]};
+		return {-x, -y, -z};
 	}
 
 	float operator[](int i) const
@@ -39,17 +43,17 @@ public:
 
 	Vec3& operator+=(const Vec3& v)
 	{
-		e[0] += v.e[0];
-		e[1] += v.e[1];
-		e[2] += v.e[2];
+		x += v.x;
+		y += v.y;
+		z += v.z;
 		return *this;
 	}
 
 	Vec3& operator*=(const float t)
 	{
-		e[0] *= t;
-		e[1] *= t;
-		e[2] *= t;
+		x *= t;
+		y *= t;
+		z *= t;
 		return *this;
 	}
 
@@ -65,7 +69,7 @@ public:
 
 	float length2() const
 	{
-		return e[0] * e[0] + e[1] * e[1] + e[2] * e[2];
+		return x * x + y * y + z * z;
 	}
 
 	static Vec3 random()
@@ -82,10 +86,18 @@ public:
 	{
 		// Return true if the vector is close to zero in all dimensions.
 		constexpr auto s = 1e-8f;
-		return (fabs(e[0]) < s) && (fabs(e[1]) < s) && (fabs(e[2]) < s);
+		return (fabs(x) < s) && (fabs(y) < s) && (fabs(z) < s);
 	}
 
-	float e[3];
+	union {
+		struct {
+			float x, y, z;
+		};
+		struct {
+			float r{}, g{}, b{};
+		};
+		float e[3];
+	};
 };
 
 // Type aliases for vec3
@@ -97,27 +109,27 @@ using Color3 = Vec3; // RGB color
 
 inline std::ostream& operator<<(std::ostream& out, const Vec3& v)
 {
-	return out << v.e[0] << ' ' << v.e[1] << ' ' << v.e[2];
+	return out << v.x << ' ' << v.y << ' ' << v.z;
 }
 
 inline Vec3 operator+(const Vec3& u, const Vec3& v)
 {
-	return Vec3(u.e[0] + v.e[0], u.e[1] + v.e[1], u.e[2] + v.e[2]);
+	return {u.x + v.x, u.y + v.y, u.z + v.z};
 }
 
 inline Vec3 operator-(const Vec3& u, const Vec3& v)
 {
-	return Vec3(u.e[0] - v.e[0], u.e[1] - v.e[1], u.e[2] - v.e[2]);
+	return {u.x - v.x, u.y - v.y, u.z - v.z};
 }
 
 inline Vec3 operator*(const Vec3& u, const Vec3& v)
 {
-	return Vec3(u.e[0] * v.e[0], u.e[1] * v.e[1], u.e[2] * v.e[2]);
+	return {u.x * v.x, u.y * v.y, u.z * v.z};
 }
 
 inline Vec3 operator*(float t, const Vec3& v)
 {
-	return Vec3(t * v.e[0], t * v.e[1], t * v.e[2]);
+	return {t * v.x, t * v.y, t * v.z};
 }
 
 inline Vec3 operator*(const Vec3& v, float t)
@@ -132,17 +144,17 @@ inline Vec3 operator/(Vec3 v, float t)
 
 inline float dot(const Vec3& u, const Vec3& v)
 {
-	return u.e[0] * v.e[0]
-		+ u.e[1] * v.e[1]
-		+ u.e[2] * v.e[2];
+	return u.x * v.x
+		+ u.y * v.y
+		+ u.z * v.z;
 }
 
 inline Vec3 cross(const Vec3& u, const Vec3& v)
 {
 	return {
-		u.e[1] * v.e[2] - u.e[2] * v.e[1],
-		u.e[2] * v.e[0] - u.e[0] * v.e[2],
-		u.e[0] * v.e[1] - u.e[1] * v.e[0]
+		u.y * v.z - u.z * v.y,
+		u.z * v.x - u.x * v.z,
+		u.x * v.y - u.y * v.x
 	};
 }
 
@@ -168,9 +180,9 @@ Vec3 random_unit_vector();
 
 Vec3 random_in_hemisphere(const Vec3& normal);
 
-rgb_t get_color(const Color3 pixel_color, const int samples_per_pixel);
+rgb_t get_color(Color3 pixel_color, int samples_per_pixel);
 
 // Convert separate R, G, B values to rgb_t struct
-rgb_t rgb_to_rgb_t(const unsigned char r, const unsigned char g, const unsigned char b);
+rgb_t rgb_to_rgb_t(unsigned char r, unsigned char g, unsigned char b);
 
 rgb_t color_to_rgb_t(const Color3& color);

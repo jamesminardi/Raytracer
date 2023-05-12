@@ -5,15 +5,15 @@
 #pragma once
 
 #include "ray.h"
-#include "RTmath/numeric.h"
-#include "RTmath/vec3.h"
+#include "math/numeric.h"
+#include "math/vec3.h"
 
 class Camera {
 public:
-	Camera(const Point3 lookfrom, const Point3 lookat, const Vec3 vup,
-		   const float vfov, const float aspect_ratio, const float aperture, const float focus_dist)
+	Camera(const Point3 look_from, const Point3 look_at, const Vec3 v_up,
+           const float v_fov, const float aspect_ratio, const float aperture, const float focus_dist)
 	{
-		const auto theta = degrees_to_radians(vfov);
+		const auto theta = degrees_to_radians(v_fov);
 		const auto h     = tanf(theta / 2.0f);
 
 		const auto viewport_height  = 2.0f * h;
@@ -21,31 +21,31 @@ public:
 		constexpr auto focal_length = 1.0f;
 
 
-		w_ = unit_vector(lookfrom - lookat);
-		u_ = unit_vector(cross(vup, w_));
-		v_ = cross(w_, u_);
+        w = unit_vector(look_from - look_at);
+        u = unit_vector(cross(v_up, w));
+        v = cross(w, u);
 
-		origin_            = lookfrom;
-		horizontal_        = focus_dist * viewport_width * u_;
-		vertical_          = focus_dist * viewport_height * v_;
-		lower_left_corner_ = origin_ - horizontal_ / 2 - vertical_ / 2 - focus_dist * w_;
+        origin            = look_from;
+        horizontal        = focus_dist * viewport_width * u;
+        vertical          = focus_dist * viewport_height * v;
+        lower_left_corner = origin - horizontal / 2 - vertical / 2 - focus_dist * w;
 
-		lens_radius_ = aperture / 2.0f;
+        lens_radius = aperture / 2.0f;
 	}
 
 	Ray get_ray(const float s, const float t) const
 	{
-		const Vec3 rd     = lens_radius_ * random_in_unit_disk();
-		const Vec3 offset = u_ * rd.x() + v_ * rd.y();
+		const Vec3 rd     = lens_radius * random_in_unit_disk();
+		const Vec3 offset = u * rd.x + v * rd.y;
 
-		return {origin_ + offset, lower_left_corner_ + s * horizontal_ + t * vertical_ - origin_ - offset};
+		return {origin + offset, lower_left_corner + s * horizontal + t * vertical - origin - offset};
 	}
 
 private:
-	Point3 origin_;
-	Point3 lower_left_corner_;
-	Vec3 horizontal_;
-	Vec3 vertical_;
-	Vec3 u_, v_, w_;
-	float lens_radius_;
+	Point3 origin;
+	Point3 lower_left_corner;
+	Vec3 horizontal;
+	Vec3 vertical;
+	Vec3 u, v, w;
+	float lens_radius;
 };

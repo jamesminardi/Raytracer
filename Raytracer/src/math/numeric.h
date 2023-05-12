@@ -15,7 +15,7 @@
 
 using std::shared_ptr;
 using std::make_shared;
-using std::sqrtf;
+using std::fabs;
 
 // Constants
 
@@ -49,7 +49,7 @@ inline float clamp(const float x, const float min, const float max)
 // Returns a random real in [0, 1)
 inline float random_float()
 {
-	return rand() / (RAND_MAX + 1.0f);
+	return static_cast<float>(rand()) / (RAND_MAX + 1.0f);
 }
 
 

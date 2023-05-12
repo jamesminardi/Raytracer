@@ -1,19 +1,19 @@
 #include <cstdio>
-#include "bitmap/bitmap_image.hpp"
+#include "bitmap_image.hpp"
 
 #include "camera.h"
 #include "hittables.h"
 #include "material.h"
 #include "sphere.h"
-#include "RTmath/numeric.h"
+#include "math/numeric.h"
 
 
 // Image
 constexpr float aspect_ratio    = 3.0f / 2.0f;
-constexpr int image_width       = 600;
+constexpr int image_width       = 800;
 constexpr int image_height      = static_cast<int>(image_width / aspect_ratio);
 constexpr int samples_per_pixel = 50;
-constexpr int max_depth         = 15;
+constexpr int max_depth         = 6;
 
 // Camera
 constexpr float viewport_height = 2.0f;
@@ -41,6 +41,7 @@ float hit_sphere(const Point3& center, const float radius, const Ray& r)
 	return (-b_half - sqrtf(discriminant)) / a;
 }
 
+// Recursive
 Color3 ray_color(const Ray& r, const Hittables& world, int depth)
 {
 	Hit_Record record;
@@ -66,7 +67,7 @@ Color3 ray_color(const Ray& r, const Hittables& world, int depth)
 	const Vec3 unit_direction = get_normal(r.direction());
 
 	// Convert (-1 to 1) y part of vector to (0 to 1)
-	const auto t = 0.5f * (unit_direction.y() + 1.0f);
+	const auto t = 0.5f * (unit_direction.y + 1.0f);
 
 	// blendedValue = (1 - t)*startValue + t*endValue
 	// When y=max: 0*startValue + 1*endValue
@@ -87,7 +88,7 @@ Hittables random_scene()
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
 			const auto choose_mat = random_float();
-			Point3 center(a + 0.9f * random_float(), 0.2f, b + 0.9f * random_float());
+			Point3 center(static_cast<float>(a) + 0.9f * random_float(), 0.2f, static_cast<float>(b) + 0.9f * random_float());
 
 			if ((center - Point3(4, 0.2f, 0)).length() > 0.9f) {
 				shared_ptr<Material> sphere_material;
@@ -129,26 +130,24 @@ Hittables random_scene()
 int main(int argc, char* argv[])
 {
 	// World
-	//hittables world;
-	/*
-		auto material_ground = make_shared<lambertian>(color3(0.8f, 0.8f, 0.0f));
-		auto material_center = make_shared<lambertian>(color3(0.1f, 0.2f, 0.5f));
-		auto material_left = make_shared<dielectric>(1.5f);
-		auto material_right = make_shared<metal>(color3(0.8f,0.6f,0.4f), 0.5f);
-		
-		world.add(make_shared<sphere>(point3( 0.0f, -100.5f, -1.0f), 100.0f, material_ground));
-		world.add(make_shared<sphere>(point3( 0.0f,    0.0f, -1.0f),   0.5f, material_center));
-		world.add(make_shared<sphere>(point3(-1.0f,    0.0f, -1.0f),   0.5f, material_left));
-		world.add(make_shared<sphere>(point3(-1.0f,    0.0f, -1.0f), -0.45f, material_left));
-		world.add(make_shared<sphere>(point3( 1.0f,    0.0f, -1.0f),   0.5f, material_right));
-	*/
+    Hittables world;
+    auto material_ground = make_shared<Lambertian>(Color3(0.8f, 0.8f, 0.0f));
+    auto material_center = make_shared<Lambertian>(Color3(0.1f, 0.2f, 0.5f));
+    auto material_left = make_shared<Dielectric>(1.5f);
+    auto material_right = make_shared<Metal>(Color3(0.8f,0.6f,0.4f), 0.5f);
 
-	auto world = random_scene();
+    world.add(make_shared<Sphere>(Point3( 0.0f, -100.5f, -1.0f), 100.0f, material_ground));
+    world.add(make_shared<Sphere>(Point3( 0.0f,    0.0f, -1.0f),   0.5f, material_center));
+    world.add(make_shared<Sphere>(Point3(-1.0f,    0.0f, -1.0f),   0.5f, material_left));
+    world.add(make_shared<Sphere>(Point3(-1.0f,    0.0f, -1.0f), -0.45f, material_left));
+    world.add(make_shared<Sphere>(Point3( 1.0f,    0.0f, -1.0f),   0.5f, material_right));
 
-	const Point3 look_from(13, 2, 3);
+	//auto world = random_scene();
+
+	const Point3 look_from(3, 1, 3);
 	const Point3 look_at(0, 0, 0);
 	const Vec3 vup(0, 1, 0);
-	constexpr auto dist_to_focus = 10.0f;
+	constexpr auto dist_to_focus = 4.0f;
 	constexpr auto aperture      = 0.1f;
 
 

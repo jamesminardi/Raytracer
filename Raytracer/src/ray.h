@@ -4,8 +4,8 @@
 
 #pragma once
 
-#include "RTmath/numeric.h"
-#include "RTmath/vec3.h"
+#include "math/numeric.h"
+#include "math/vec3.h"
 
 class Ray {
 public:

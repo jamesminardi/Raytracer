@@ -2,7 +2,7 @@
 
 Vec3 refract(const Vec3& uv, const Vec3& normal, float etaI_over_etaT)
 {
-	auto cos_theta  = fmin(dot(-uv, normal), 1.0f);
+	float cos_theta  = fmin(dot(-uv, normal), 1.0f);
 	Vec3 R_perp     = etaI_over_etaT * (uv + cos_theta * normal);
 	Vec3 R_parallel = normal * -sqrtf(fabs(1.0f - R_perp.length2()));
 	return R_perp + R_parallel;
@@ -15,9 +15,9 @@ Vec3 reflect(const Vec3& vec, const Vec3& normal)
 
 rgb_t get_color(const Color3 pixel_color, const int samples_per_pixel)
 {
-	float r = pixel_color.x();
-	float g = pixel_color.y();
-	float b = pixel_color.z();
+	float r = pixel_color.x;
+	float g = pixel_color.y;
+	float b = pixel_color.z;
 
 
 	// Divide the color by the number of samples and gamma-correct for gamma=2.0
@@ -77,5 +77,5 @@ rgb_t rgb_to_rgb_t(const unsigned char r, const unsigned char g, const unsigned 
 
 rgb_t color_to_rgb_t(const Color3& color)
 {
-	return rgb_to_rgb_t(color.r(), color.g(), color.b());
+	return rgb_to_rgb_t(color.r, color.g, color.b);
 }
